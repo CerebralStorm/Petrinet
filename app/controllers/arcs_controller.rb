@@ -1,0 +1,2 @@
+class ArcsController < ApplicationController
+end

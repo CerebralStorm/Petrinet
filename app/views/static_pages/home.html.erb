@@ -1,5 +1,174 @@
 <h1>Petri Nets Simulater Version 0.1</h1>
 <h4>Current Version Released: 11-15-2012</h4>
 
-<canvas id="myCanvas" width="940" height="600">
-</canvas> 
+<div id="buttons">
+      <button id="place">Place</button>
+      <button id="arc">Arc</button>
+      <button id="transition">Transition</button>
+    </div>
+<div id="canvas"></div>
+<script>
+  var stage = new Kinetic.Stage({
+    container: 'canvas',
+    width: 940,
+    height: 600,
+  });
+  var layer = new Kinetic.Layer();
+  var arcLayer = new Kinetic.Layer();
+  var placeLayer = new Kinetic.Layer();
+  var transitionLayer = new Kinetic.Layer();
+  var tokenLayer = new Kinetic.Layer();
+  var placeCount = 1;
+
+  var arcX = stage.getWidth() / 2 - 50;
+  var arcY = stage.getHeight() / 2 - 25;
+
+// Draw a blank circle to make sure the library is loaded
+  var place = new Kinetic.Circle({
+      x: 0,
+      y: 0,
+      radius: 0
+    });
+
+    placeLayer.add(place);
+    stage.add(layer);
+    stage.add(placeLayer);
+    stage.add(transitionLayer);
+    stage.add(arcLayer);
+
+// Add Places Event
+  document.getElementById("place").addEventListener("click", function() {
+    var place = new Kinetic.Circle({
+      x: arcX,
+      y: arcY,
+      radius: 30,
+      fill: '#67A969',
+      stroke: 'black',
+      strokeWidth: 2,
+      id: "#{placeCount}",
+      shadow: {
+            offset: 3,
+            color: 'black',
+            blur: 5,
+            opacity: 0.5
+          }
+    });
+
+    placeCount++;
+
+    place.on("click", function() {
+      var token = new Kinetic.Circle({
+      x: this.x,
+      y: this.y,
+      radius: 5,
+      fill: '#000',
+      stroke: 'black',
+      strokeWidth: 2,
+      });
+
+      tokenLayer.add(token);  
+      stage.add(tokenLayer);
+    });
+
+    place.on("mouseover", function() {
+      place.setDraggable(true);
+      document.body.style.cursor = "pointer";
+    });
+
+    place.on("mouseout", function() {
+      place.setDraggable(false);
+      document.body.style.cursor = "default";
+    });
+
+    $.ajax('#{:controller => "places", :action => "create"}?param_one=' + $(this).val());
+
+    placeLayer.add(place);  
+    stage.add(placeLayer);    
+  }, false);
+
+// Add Transitions Event
+  document.getElementById("transition").addEventListener("click", function() {
+    var transition = new Kinetic.Rect({
+      x: arcX,
+      y: arcY,
+      width: 30,
+      height: 30,
+      fill: '#5584A4',
+      stroke: 'black',
+      strokeWidth: 2,
+      shadow: {
+            offset: 3,
+            color: 'black',
+            blur: 5,
+            opacity: 0.5
+          }
+    });
+
+    transition.on("mouseover", function() {
+      transition.setDraggable(true);
+      document.body.style.cursor = "pointer";
+    });
+
+    transition.on("mouseout", function() {
+      transition.setDraggable(false);
+      document.body.style.cursor = "default";
+    });
+
+    transitionLayer.add(transition);
+    stage.add(transitionLayer);      
+  }, false);
+
+// Add Arc Event
+  document.getElementById("arc").addEventListener("click", function() {
+    var arc = new Kinetic.Line({      
+      strokeWidth: 3,
+      stroke: "black",
+      lineCap: "round",
+      id: "arc",
+      shadow: {
+            offset: 3,
+            color: 'black',
+            blur: 5,
+            opacity: 0.5
+          }
+    });
+  
+    arcLayer.arc = {
+      start: buildAnchor(arcLayer, arcX-40, arcY-40),
+      control: buildAnchor(arcLayer, arcX, arcY),
+      end: buildAnchor(arcLayer, arcX+40, arcY+40)
+    };
+
+    arcLayer.beforeDraw(function() {
+      updateDottedLines(arcLayer);
+    });
+
+    arcLayer.add(arc);
+    stage.add(arcLayer);      
+  }, false);  
+
+  function updateDottedLines(layer) {
+    var q = layer.arc;
+    var arc = layer.get('#arc')[0];
+    arc.setPoints([q.start.attrs.x, q.start.attrs.y, q.control.attrs.x, q.control.attrs.y, q.end.attrs.x, q.end.attrs.y]);
+  }
+
+  function buildAnchor(layer, x, y) {
+    var anchor = new Kinetic.Circle({
+      x: x,
+      y: y,
+      radius: 10,
+      fill: "#000",
+      draggable: true,
+      shadow: {
+            offset: 3,
+            color: 'black',
+            blur: 5,
+            opacity: 0.5
+          }
+    });
+
+    arcLayer.add(anchor);
+    return anchor;
+  }
+</script> 

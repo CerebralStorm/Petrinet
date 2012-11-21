@@ -1,0 +1,2 @@
+class PetriNetsController < ApplicationController
+end
