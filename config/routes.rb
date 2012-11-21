@@ -1,12 +1,12 @@
 Petrinet::Application.routes.draw do
   resources :petri_nets do
-    resources :places, only: [:create, :destroy]
-    resources :transitions, only: [:create, :destroy]
-    resources :tokens, only: [:create, :destroy]
-    resources :arcs, only: [:create, :destroy]
+    resources :places, only: [:create, :update, :destroy]
+    resources :transitions, only: [:create, :update, :destroy]
+    resources :tokens, only: [:create, :update, :destroy]
+    resources :arcs, only: [:create, :update, :destroy]
   end
 
-  root :to => 'static_pages#home'
+  root :to => 'petri_nets#index'
   match '/drag', :to => 'static_pages#drag'
 
   # The priority is based upon order of creation:

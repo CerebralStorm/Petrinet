@@ -4,3 +4,11 @@
 <%= simple_form_for PetriNet.new do |f| %>
   <% f.button :submit, value: "Create New Petri Net" %>
 <% end %>
+
+<% if @petri_nets.any? %>
+  <% @petri_nets.each do |pn| %>
+  <ul>
+    <li><%= link_to pn.created_at, pn %></li>
+  </ul>
+  <% end %>
+<% end %>

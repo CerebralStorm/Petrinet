@@ -1,6 +1,10 @@
 class PlacesController < ApplicationController
   def create
-    raise params
+    @place = Place.create!(params[:place])
+  end
+
+  def update
+    @place = Place.update_attributes!(params[:place])
   end
 
   def destroy
