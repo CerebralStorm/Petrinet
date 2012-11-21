@@ -1,5 +1,6 @@
 class Arc < ActiveRecord::Base
-  attr_accessible :weight, :time, :x, :y, :petri_net_id
+  attr_accessible :weight, :time, :beginX, :beginY, :endX, :endY, 
+                  :place_id, :transition_id, :petri_net_id
 
   validates :petri_net_id, presence: true
 

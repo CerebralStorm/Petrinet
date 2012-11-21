@@ -10,6 +10,7 @@ gem 'execjs'
 gem 'therubyracer'
 gem 'twitter-bootstrap-rails'
 gem 'simple_form'
+gem 'gon'
 
 
 # Gems used only for assets and not required

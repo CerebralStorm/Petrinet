@@ -14,13 +14,17 @@
 ActiveRecord::Schema.define(:version => 20121116023622) do
 
   create_table "arcs", :force => true do |t|
-    t.integer  "weight",       :default => 0
+    t.integer  "weight",        :default => 0
+    t.integer  "place_id"
+    t.integer  "transition_id"
     t.integer  "petri_net_id"
     t.float    "time"
-    t.integer  "x"
-    t.integer  "y"
-    t.datetime "created_at",                  :null => false
-    t.datetime "updated_at",                  :null => false
+    t.integer  "beginX"
+    t.integer  "beginY"
+    t.integer  "endX"
+    t.integer  "endY"
+    t.datetime "created_at",                   :null => false
+    t.datetime "updated_at",                   :null => false
   end
 
   create_table "petri_nets", :force => true do |t|
@@ -32,15 +36,14 @@ ActiveRecord::Schema.define(:version => 20121116023622) do
     t.integer  "x"
     t.integer  "y"
     t.integer  "petri_net_id"
-    t.datetime "created_at",   :null => false
-    t.datetime "updated_at",   :null => false
+    t.integer  "num_of_tokens", :default => 0
+    t.datetime "created_at",                   :null => false
+    t.datetime "updated_at",                   :null => false
   end
 
   create_table "tokens", :force => true do |t|
     t.integer  "place_id"
     t.float    "time"
-    t.integer  "x"
-    t.integer  "y"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end

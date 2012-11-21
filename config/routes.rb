@@ -1,8 +1,10 @@
 Petrinet::Application.routes.draw do
   resources :petri_nets do
-    resources :places, only: [:create, :update, :destroy]
+    resources :places, only: [:create, :update, :destroy] do
+      resources :tokens, only: [:create, :destroy]
+    end
+
     resources :transitions, only: [:create, :update, :destroy]
-    resources :tokens, only: [:create, :update, :destroy]
     resources :arcs, only: [:create, :update, :destroy]
   end
 
