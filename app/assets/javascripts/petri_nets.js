@@ -18,7 +18,6 @@ $(document).ready(function() {
 
   // set all places
   $(gon.places).each(function(k, v){
-    alert(v.num_of_tokens);
     setPlace(v.x, v.y, v.id, v.num_of_tokens);
   });
 
@@ -190,7 +189,16 @@ $(document).ready(function() {
                         y: mousePos.y }}
       });
     });
-    
+
+    transition.on("click", function() {
+      $.ajax({
+        url: "/petri_nets/" + petri_net_id + "/transitions/" + id ,
+        type: "PUT",
+        data: { id: id, transition: { 
+                        x: mousePos.x,
+                        y: mousePos.y }}
+      });
+    });    
 
     transition.on("mouseover", function() {
       transition.setDraggable(true);
