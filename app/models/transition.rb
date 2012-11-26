@@ -4,4 +4,6 @@ class Transition < ActiveRecord::Base
   validates :petri_net_id, presence: true
   
   belongs_to :petri_net
+  has_many :arcs
+  has_many :places, through: :arcs
 end

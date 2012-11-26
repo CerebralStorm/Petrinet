@@ -9,9 +9,7 @@ $(document).ready(function() {
   var arcLayer = new Kinetic.Layer();
   var placeLayer = new Kinetic.Layer();
   var transitionLayer = new Kinetic.Layer();
-  var tokenLayer = new Kinetic.Layer();
   var petri_net_id = $('#petri_net_id').html();
-  var placesCount = 1;
 
   var midX = stage.getWidth() / 2 - 50;
   var midY = stage.getHeight() / 2 - 25;
@@ -31,9 +29,60 @@ $(document).ready(function() {
     setArc(v.beginX, v.beginY, v.endX, v.endY, v.id);
   });
 
-    stage.add(arcLayer);
-    stage.add(placeLayer);
-    stage.add(transitionLayer);    
+  background = new Kinetic.Rect({
+      x: 0, 
+      y: 0, 
+      width: stage.getWidth(),
+      height: stage.getHeight(),
+      fill: "#D5D5D5"
+  });
+
+  line = new Kinetic.Line({
+    points: [0, 0, 0, 0],
+    strokeWidth: 4,
+    stroke: "black"
+  });
+
+  layer.add(background);
+  layer.add(line);
+  stage.add(layer);
+  stage.add(arcLayer);
+  stage.add(placeLayer);
+  stage.add(transitionLayer);  
+
+
+
+moving = false;
+
+  stage.on("mousedown", function(){
+    if (moving){
+        moving = false;layer.draw();
+    } else {
+        var mousePos = stage.getMousePosition();
+        //start point and end point are the same
+        line.getPoints()[0].x = mousePos.x;
+        line.getPoints()[0].y = mousePos.y;
+        line.getPoints()[1].x = mousePos.x;
+        line.getPoints()[1].y = mousePos.y;
+
+        moving = true;    
+        layer.drawScene();            
+    }
+  }); 
+  stage.on("mousemove", function(){
+    if (moving) {
+        var mousePos = stage.getMousePosition();
+        var x = mousePos.x;
+        var y = mousePos.y;
+        line.getPoints()[1].x = mousePos.x;
+        line.getPoints()[1].y = mousePos.y;
+        moving = true;
+        layer.drawScene();
+    }
+  });
+  stage.on("mouseup", function(){
+    moving = false; 
+  }); 
 
 // Add Places Event
   document.getElementById("place").addEventListener("click", function() {
@@ -249,7 +298,7 @@ $(document).ready(function() {
       y: y,
       radius: 8,
       stroke: "#666",
-      fill: '#67A969',
+      fill: '#000',
       strokeWidth: 2,
       draggable: true
     });
@@ -283,26 +332,28 @@ $(document).ready(function() {
   }
 
   function buildEndArc(layer, x, y, id) {
-    var anchor = new Kinetic.Circle({
+    var anchor = new Kinetic.RegularPolygon({
       x: x,
       y: y,
+      sides: 3,
       radius: 8,
-      stroke: "#666",
-      fill: '#5584A4',
+      fill: "black",
+      stroke: "black",
       strokeWidth: 2,
+      name: name,
       draggable: true
     });
 
     anchor.on("dragend", function() {
       var mousePos = stage.getMousePosition();
-        $.ajax({
-          url: "/petri_nets/" + petri_net_id + "/arcs/" + id ,
-          type: "PUT",
-          data: { id: id, arc: { 
-                          endX: mousePos.x,
-                          endY: mousePos.y }},
-          success: checkTransitionConnection(x, y, id)
-        });
+      $.ajax({
+        url: "/petri_nets/" + petri_net_id + "/arcs/" + id ,
+        type: "PUT",
+        data: { id: id, arc: { 
+                        endX: mousePos.x,
+                        endY: mousePos.y }},
+        success: checkTransitionConnection(x, y, id)
+      });
     });
     
     // add hover styling
@@ -329,25 +380,27 @@ $(document).ready(function() {
 
   function checkPlaceConnection(x, y, id)
   {
-    $(gon.places).each(function(k, v){
+    $(gon.places).each(function(k, v) {
       if((Math.abs(v.x - x) < 15) && (Math.abs(v.y - y) < 15)) {        
         $.ajax({
           url: "/petri_nets/" + petri_net_id + "/arcs/" + id ,
           type: "PUT",
-          data: { id: id, arc: { place_id: v.id }}
-        });
+          data: { id: id, arc: { place_id: v.id }},
+          success: alert("Arc Connected")
+        });        
       }
     });
   }
 
   function checkTransitionConnection(x, y, id)
   {
-    $(gon.transitions).each(function(k, v){
-      if((Math.abs(v.x - x) < 15) && (Math.abs(v.y - y) < 15)) {
+    $(gon.transitions).each(function(k, v) {
+      if((Math.abs(v.x - x) < 15) && (Math.abs(v.y - y) < 15)) {        
         $.ajax({
           url: "/petri_nets/" + petri_net_id + "/arcs/" + id ,
           type: "PUT",
-          data: { id: id, arc: { transition_id: v.id }}
+          data: { id: id, arc: { transition_id_id: v.id }},
+          success: alert("Arc Connected")
         });
       }
     });
