@@ -50,13 +50,12 @@ $(document).ready(function() {
   stage.add(placeLayer);
   stage.add(transitionLayer);  
 
-
-
 moving = false;
 
   stage.on("mousedown", function(){
     if (moving){
-        moving = false;layer.draw();
+        moving = false;
+        layer.draw();
     } else {
         var mousePos = stage.getMousePosition();
         //start point and end point are the same
@@ -82,6 +81,11 @@ moving = false;
   });
   stage.on("mouseup", function(){
     moving = false; 
+    line.getPoints()[0].x = 0;
+    line.getPoints()[0].y = 0;
+    line.getPoints()[1].x = 0;
+    line.getPoints()[1].y = 0;
+    layer.drawScene();
   }); 
 
 // Add Places Event
@@ -206,7 +210,7 @@ moving = false;
     });
 
     placeLayer.add(group);  
-    stage.add(placeLayer);
+    placeLayer.drawScene(); 
   }
 
   function setTransition(posX, posY, id)
@@ -260,7 +264,7 @@ moving = false;
     });
 
     transitionLayer.add(transition);
-    stage.add(transitionLayer);
+    transitionLayer.drawScene();
   }
 
   // fuctions 
@@ -289,7 +293,7 @@ moving = false;
     });
 
     arcLayer.add(arc);
-    stage.add(arcLayer);
+    arcLayer.drawScene();
   }
 
   function buildBeginArc(layer, x, y, id) {
