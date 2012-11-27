@@ -9,8 +9,8 @@ class PlacesController < ApplicationController
     @place = Place.find(params[:id])
     @place.update_attributes!(params[:place])
     @place.arcs.each do |arc|  
-      arc.beginX = params[:place][:x]
-      arc.beginY = params[:place][:y]
+      arc.placeX = params[:place][:x]
+      arc.placeY = params[:place][:y]
       arc.save
     end
     render nothing: true

@@ -6,10 +6,10 @@ class CreateArcs < ActiveRecord::Migration
       t.integer :transition_id
       t.integer :petri_net_id
       t.float :time
-      t.integer :beginX
-      t.integer :beginY
-      t.integer :endX
-      t.integer :endY
+      t.integer :placeX
+      t.integer :placeY
+      t.integer :transitionX
+      t.integer :transitionY
 
       t.timestamps
     end

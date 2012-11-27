@@ -8,8 +8,8 @@ class TransitionsController < ApplicationController
     @transition = Transition.find(params[:id])
     @transition.update_attributes!(params[:transition])
     @transition.arcs.each do |arc|  
-      arc.endX = params[:transition][:x]
-      arc.endY = params[:transition][:y]
+      arc.transitionX = params[:transition][:x]
+      arc.transitionY = params[:transition][:y]
       arc.save
     end
     render nothing: true
