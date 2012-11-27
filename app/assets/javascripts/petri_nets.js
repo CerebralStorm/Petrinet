@@ -48,39 +48,39 @@ $(document).ready(function() {
   stage.add(placeLayer);
   stage.add(transitionLayer);
 
-  moving = false;
+  // moving = false;
 
-  stage.on("mousedown", function(){
-      if (moving){
-          moving = false;layer.draw();
-      } else {
-          var mousePos = stage.getMousePosition();
-          //start point and end point are the same
-          line.getPoints()[0].x = mousePos.x;
-          line.getPoints()[0].y = mousePos.y;
-          line.getPoints()[1].x = mousePos.x;
-          line.getPoints()[1].y = mousePos.y;
-          moving = true;    
-          layer.drawScene();            
-      }
+  // stage.on("mousedown", function(){
+  //     if (moving){
+  //         moving = false;layer.draw();
+  //     } else {
+  //         var mousePos = stage.getMousePosition();
+  //         //start point and end point are the same
+  //         line.getPoints()[0].x = mousePos.x;
+  //         line.getPoints()[0].y = mousePos.y;
+  //         line.getPoints()[1].x = mousePos.x;
+  //         line.getPoints()[1].y = mousePos.y;
+  //         moving = true;    
+  //         layer.drawScene();            
+  //     }
 
-  });
+  // });
 
-  stage.on("mousemove", function(){
-      if (moving) {
-          var mousePos = stage.getMousePosition();
-          var x = mousePos.x;
-          var y = mousePos.y;
-          line.getPoints()[1].x = mousePos.x;
-          line.getPoints()[1].y = mousePos.y;
-          moving = true;
-          layer.drawScene();
-      }
-  });
+  // stage.on("mousemove", function(){
+  //     if (moving) {
+  //         var mousePos = stage.getMousePosition();
+  //         var x = mousePos.x;
+  //         var y = mousePos.y;
+  //         line.getPoints()[1].x = mousePos.x;
+  //         line.getPoints()[1].y = mousePos.y;
+  //         moving = true;
+  //         layer.drawScene();
+  //     }
+  // });
 
-  stage.on("mouseup", function(){
-      moving = false; 
-  });
+  // stage.on("mouseup", function(){
+  //     moving = false; 
+  // });
 
 // Add Places Event
   document.getElementById("place").addEventListener("click", function() {
@@ -138,7 +138,11 @@ $(document).ready(function() {
       strokeWidth: 2,
       draggable: true
     });
-
+    var line = new Kinetic.Line({
+      points: [0, 0, 0, 0],
+      stroke: "black"
+    });
+    group.add(line);
     group.add(place);
     group.add(arcButton);
 
@@ -168,9 +172,51 @@ $(document).ready(function() {
 
       group.add(token);
     }
+    var moving = false;
+    var restoreX;
+    var restoreY;
+
+    arcButton.on("mousedown", function() {
+      if (moving){
+          moving = false;layer.draw();
+      } else {
+          var mousePos = stage.getMousePosition();
+          //start point and end point are the same
+          line.getPoints()[0].x = mousePos.x;
+          line.getPoints()[0].y = mousePos.y;
+          line.getPoints()[1].x = mousePos.x;
+          line.getPoints()[1].y = mousePos.y;
+          moving = true;    
+          layer.drawScene();            
+      }
+    });
+
+    arcButton.on("mousemove", function(){
+      if (moving) {
+          var mousePos = stage.getMousePosition();
+          var x = mousePos.x;
+          var y = mousePos.y;
+          line.getPoints()[1].x = mousePos.x;
+          line.getPoints()[1].y = mousePos.y;
+          moving = true;
+          layer.drawScene();
+      }
+    });
+
+    arcButton.on("mouseup", function(){
+      moving = false; 
+      arcButton.setX(posX+22);
+      arcButton.setY(posY-20);
+      line.getPoints()[0].x = 0;
+      line.getPoints()[0].y = 0;
+      line.getPoints()[1].x = 0;      
+      line.getPoints()[1].y = 0;
+      layer.drawScene();
+      placeLayer.drawScene();
+    });
 
     arcButton.on("dragend", function() {
-      alert("TODO");
+      //alert("TODO");
     });
 
     place.on("click", function() {
