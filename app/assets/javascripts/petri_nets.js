@@ -18,7 +18,7 @@ $(document).ready(function() {
       y: 0, 
       width: stage.getWidth(),
       height: stage.getHeight(),
-      fill: "#D5D5D5"
+      fill: "#A5A5A5"
   });
 
   var line = new Kinetic.Line({
@@ -42,7 +42,11 @@ $(document).ready(function() {
       success: function(data) {
         //alert(data);
       }
-    });   
+    }).done(function(data) { 
+      console.log(data); 
+      setPlace(data.x, data.y, data.id, data.num_of_tokens, placeLayer); 
+      placeLayer.drawScene(); 
+    });  
   }, false);
 
   // Add Transitions Event Listener
@@ -54,7 +58,11 @@ $(document).ready(function() {
                       x: midX,
                       y: midY,
                        }},
-    });  
+    }).done(function(data) { 
+      console.log(data); 
+      setTransition(data.x, data.y, data.id, transitionLayer);
+      transitionLayer.drawScene();   
+    });   
   }, false);
 
   // set all places
@@ -110,31 +118,10 @@ $(document).ready(function() {
     group.add(arcButton);
 
     // draw tokens
-    for (var i=0;i<num_of_tokens;i++)
-    {
-      var tempX = posX;
-      var tempY = posY;
-      // if(i == 4) {
-      //   tempY -= 15;
-      // }
-      // else if (i == 3) {
-      //   tempY += 15;
-      // }
-      // else {
-      //   tempX = tempX-(i*15)+15;
-      // }
+    if(num_of_tokens > 0){
+      drawToken(posX, posY, group);
+    }    
 
-      var token = new Kinetic.Circle({
-        x: tempX,
-        y: tempY,
-        radius: 8,
-        fill: '#000',
-        stroke: 'black',
-        strokeWidth: 2,
-      });
-
-      group.add(token);
-    }
     var moving = false;
 
     arcButton.on("mousedown", function() {
@@ -190,8 +177,12 @@ $(document).ready(function() {
                                     placeY: posY,
                                     transition_id: v.id,
                                     transitionX: v.x,
-                                    transitionY: v.y  }},
-            success: alert("Arc Connected To Transition")
+                                    transitionY: v.y  }}
+          }).done(function(data) { 
+            console.log(data); 
+            setArc(data.placeX, data.placeY, data.transitionX, 
+                   data.transitionY, drawLayer, data.output); 
+            drawLayer.drawScene(); 
           });        
         }
       });
@@ -203,6 +194,10 @@ $(document).ready(function() {
           url: "/petri_nets/" + petri_net_id + "/places/" + id,
           type: "PUT",
           data: { id: id, place: { num_of_tokens: num_of_tokens+1 }} 
+        }).done(function(data) { 
+          console.log(data); 
+          drawToken(posX, posY, group); 
+          placeLayer.drawScene(); 
         });
       }
     });
@@ -323,9 +318,12 @@ $(document).ready(function() {
                                     transition_id: id,
                                     transitionX: posX,
                                     transitionY: posY,
-                                    output: true  }},
-            success: alert("Arc Connected To Place")
-          });        
+                                    output: true  }}
+          }).done(function(data) { 
+            console.log(data); 
+            setArc(data.placeX, data.placeY, data.transitionX+15, 
+                   data.transitionY+15, drawLayer, data.output);  
+          });         
         }
       });
     });
@@ -346,7 +344,7 @@ $(document).ready(function() {
         url: "/petri_nets/" + petri_net_id,
         type: "PUT",
         data: { id: petri_net_id, transition_id: id }
-      });
+      })
     });       
 
     transition.on("mouseover", function() {
@@ -398,6 +396,20 @@ $(document).ready(function() {
       calcAngle = 360 - calcAngle; 
     }   
     return calcAngle;
+  }
+
+  function drawToken(x, y, group)
+  {
+    var token = new Kinetic.Circle({
+      x: x,
+      y: y,
+      radius: 8,
+      fill: '#000',
+      stroke: 'black',
+      strokeWidth: 2,
+    });
+
+    group.add(token);
   }
 });
 

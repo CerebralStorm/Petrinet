@@ -1,7 +1,7 @@
 class TransitionsController < ApplicationController
   def create
     @transition = Transition.create!(params[:transition])
-    render nothing: true
+    render json: @transition
   end
 
   def update
@@ -16,5 +16,7 @@ class TransitionsController < ApplicationController
   end
 
   def destroy
+    @transition = Transition.find(params[:id])
+    @transition.destroy
   end
 end

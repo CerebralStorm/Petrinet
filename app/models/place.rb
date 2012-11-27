@@ -10,12 +10,12 @@ class Place < ActiveRecord::Base
   has_many :transitions, through: :arcs
 
   def add_token
-    self.num_of_tokens += 1
+    self.num_of_tokens = 1
     self.save
   end
 
   def remove_token
-    self.num_of_tokens -= 1
+    self.num_of_tokens = 0
     self.save
   end
 end

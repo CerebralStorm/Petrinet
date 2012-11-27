@@ -1,8 +1,8 @@
 class PlacesController < ApplicationController
   def create
     @petri_net = PetriNet.find(params[:place][:petri_net_id])
-    @place = Place.create!(params[:place])    
-    redirect_to @petri_net
+    @place = Place.create!(params[:place])  
+    render json: @place
   end
 
   def update
