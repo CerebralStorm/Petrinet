@@ -23,8 +23,9 @@ ActiveRecord::Schema.define(:version => 20121116023622) do
     t.integer  "placeY"
     t.integer  "transitionX"
     t.integer  "transitionY"
-    t.datetime "created_at",                   :null => false
-    t.datetime "updated_at",                   :null => false
+    t.boolean  "output",        :default => false
+    t.datetime "created_at",                       :null => false
+    t.datetime "updated_at",                       :null => false
   end
 
   create_table "petri_nets", :force => true do |t|

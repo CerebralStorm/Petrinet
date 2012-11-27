@@ -40,7 +40,7 @@ $(document).ready(function() {
                       y: midY,
                        }},
       success: function(data) {
-        alert("how can I get data here?");
+        //alert(data);
       }
     });   
   }, false);
@@ -69,7 +69,7 @@ $(document).ready(function() {
 
   //set all arcs
   $(gon.arcs).each(function(k, v){
-    setArc(v.placeX, v.placeY, v.transitionX+15, v.transitionY+15, drawLayer);
+    setArc(v.placeX, v.placeY, v.transitionX+15, v.transitionY+15, drawLayer, v.output);
   });  
     
   stage.add(drawLayer);
@@ -198,7 +198,7 @@ $(document).ready(function() {
     });
 
     place.on("click", function() {
-      if(num_of_tokens < 5) {
+      if(num_of_tokens < 1) {
         $.ajax({
           url: "/petri_nets/" + petri_net_id + "/places/" + id,
           type: "PUT",
@@ -308,12 +308,11 @@ $(document).ready(function() {
     });
 
     arcButton.on("dragend", function() {
-      var x = arcButton.getAbsolutePosition().x;
-      var y = arcButton.getAbsolutePosition().y;
+      var mousePos = stage.getMousePosition();
+      var x = mousePos.x;
+      var y = mousePos.y;
       $(gon.places).each(function(k, v) {
-        alert(v.x + "-" + x + " = " + (v.x - x));
-        alert(Math.abs(v.x - x) + " " + Math.abs(v.y - y) );
-        if((Math.abs(v.x - x) < 25) && (Math.abs(v.y - y) < 25)) {               
+        if((Math.abs(v.x - x) < 30) && (Math.abs(v.y - y) < 30)) {               
           $.ajax({
             url: "/petri_nets/" + petri_net_id + "/arcs/",
             type: "POST",
@@ -323,7 +322,8 @@ $(document).ready(function() {
                                     placeY: v.y,
                                     transition_id: id,
                                     transitionX: posX,
-                                    transitionY: posY  }},
+                                    transitionY: posY,
+                                    output: true  }},
             success: alert("Arc Connected To Place")
           });        
         }
@@ -339,7 +339,15 @@ $(document).ready(function() {
                         x: transition.getAbsolutePosition().x,
                         y: transition.getAbsolutePosition().y }}
       });
-    });        
+    }); 
+
+    transition.on("click", function() {
+      $.ajax({
+        url: "/petri_nets/" + petri_net_id,
+        type: "PUT",
+        data: { id: petri_net_id, transition_id: id }
+      });
+    });       
 
     transition.on("mouseover", function() {
       group.setDraggable(true);
@@ -355,34 +363,40 @@ $(document).ready(function() {
   }
 
   // fuctions 
-  function setArc(placeX, placeY, transitionX, transitionY, layer)
+  function setArc(placeX, placeY, transitionX, transitionY, layer, output)
   { 
+    var angle = calcAngle(placeX, transitionX, placeY, transitionY);
+    if(output){
+      angle += 180;
+    }
+    var group = new Kinetic.Group();
     var arc = new Kinetic.Line({
       points: [placeX, placeY, transitionX, transitionY],
       stroke: "black"
     });
-    var anchor = new Kinetic.RegularPolygon({
+    group.add(arc);
+    var arrow = new Kinetic.RegularPolygon({
       x: (transitionX+placeX)/2,
       y: (transitionY+placeY)/2,
       sides: 3,
-      rotationDeg: calcAngle(placeX, transitionX, placeY, transitionY),
+      rotationDeg: angle,
       radius: 8,
       stroke: "black",
       strokeWidth: 2,
-      name: name,
-      draggable: true
-    });
-    layer.add(anchor);
-    layer.add(arc);
+    });    
+    group.add(arrow);
+
+    layer.add(group);
   }
 
   function calcAngle(x1, x2, y1, y2)
   {
-    calcAngle = Math.atan2(x1-x2,y1-y2)*(180/Math.PI);  
-    if(calcAngle < 0) 
-    calcAngle = Math.abs(calcAngle);
-    else
-    calcAngle = 360 - calcAngle;    
+    var calcAngle = Math.atan2(x1-x2,y1-y2)*(180/Math.PI);  
+    if(calcAngle < 0) {
+      calcAngle = Math.abs(calcAngle);
+    } else {
+      calcAngle = 360 - calcAngle; 
+    }   
     return calcAngle;
   }
 });

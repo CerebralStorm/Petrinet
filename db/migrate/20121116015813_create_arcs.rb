@@ -10,6 +10,7 @@ class CreateArcs < ActiveRecord::Migration
       t.integer :placeY
       t.integer :transitionX
       t.integer :transitionY
+      t.boolean :output, default: false
 
       t.timestamps
     end

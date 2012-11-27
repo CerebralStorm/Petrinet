@@ -25,6 +25,20 @@ class PetriNetsController < ApplicationController
     end
   end
 
+  def update
+    @petri_net = PetriNet.find(params[:id])
+    @transition = Transition.find(params[:transition_id])
+    if(@transition)
+      @transition.inputs.each do |input|
+        input.place.remove_token
+      end
+      @transition.outputs.each do |output|
+        output.place.add_token
+      end
+    end
+    render nothing: true
+  end
+
   def destroy
     if @petri_net = PetriNet.find(params[:id]).destroy
       flash[:success] = "Petri Net Deleted"
