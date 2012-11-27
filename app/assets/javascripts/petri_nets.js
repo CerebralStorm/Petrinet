@@ -147,20 +147,20 @@ $(document).ready(function() {
     {
       var tempX = posX;
       var tempY = posY;
-      if(i == 4) {
-        tempY -= 15;
-      }
-      else if (i == 3) {
-        tempY += 15;
-      }
-      else {
-        tempX = tempX-(i*15)+15;
-      }
+      // if(i == 4) {
+      //   tempY -= 15;
+      // }
+      // else if (i == 3) {
+      //   tempY += 15;
+      // }
+      // else {
+      //   tempX = tempX-(i*15)+15;
+      // }
 
       var token = new Kinetic.Circle({
         x: tempX,
         y: tempY,
-        radius: 5,
+        radius: 8,
         fill: '#000',
         stroke: 'black',
         strokeWidth: 2,
@@ -168,6 +168,10 @@ $(document).ready(function() {
 
       group.add(token);
     }
+
+    arcButton.on("dragend", function() {
+      alert("TODO");
+    });
 
     place.on("click", function() {
       if(num_of_tokens < 5) {
@@ -179,7 +183,7 @@ $(document).ready(function() {
       }
     });
 
-    group.on("dragend", function() {
+    place.on("dragend", function() {
       var mousePos = stage.getMousePosition();
       $.ajax({
         url: "/petri_nets/" + petri_net_id + "/places/" + id,
@@ -206,6 +210,9 @@ $(document).ready(function() {
 
   function setTransition(posX, posY, id)
   {
+    var group = new Kinetic.Group({
+        id: id
+      });
     var transition = new Kinetic.Rect({
       x: posX,
       y: posY,
@@ -222,6 +229,19 @@ $(document).ready(function() {
             opacity: 0.5
           }
     });
+
+    var arcButton = new Kinetic.Circle({
+      x: posX+30,
+      y: posY,
+      radius: 4,
+      fill: '#67A969',
+      stroke: '#000',
+      strokeWidth: 2,
+      draggable: true
+    });
+
+    group.add(transition);
+    group.add(arcButton);
 
     transition.on("dragend", function() {
       var mousePos = stage.getMousePosition();
@@ -245,16 +265,16 @@ $(document).ready(function() {
     });    
 
     transition.on("mouseover", function() {
-      transition.setDraggable(true);
+      group.setDraggable(true);
       document.body.style.cursor = "pointer";
     });
 
     transition.on("mouseout", function() {
-      transition.setDraggable(false);
+      group.setDraggable(false);
       document.body.style.cursor = "default";
     });
 
-    transitionLayer.add(transition);
+    transitionLayer.add(group);
     stage.add(transitionLayer); 
   }
 
