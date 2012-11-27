@@ -28,7 +28,7 @@ class PetriNetsController < ApplicationController
   def update
     @petri_net = PetriNet.find(params[:id])
     @transition = Transition.find(params[:transition_id])
-    if(@transition)
+    if(@transition.enabled)
       @transition.inputs.each do |input|
         input.place.remove_token
       end

@@ -14,4 +14,15 @@ class Transition < ActiveRecord::Base
   def outputs
     outputs = self.arcs.where("output = true")  
   end
+
+  def enabled
+    result = true
+    inputs.each do |input|
+      if input.place.num_of_tokens == 0
+        result = false
+      end
+    end
+
+    return result
+  end
 end
