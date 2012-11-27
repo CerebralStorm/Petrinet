@@ -6,7 +6,6 @@ class PetriNetsController < ApplicationController
   def show
     @petri_net = PetriNet.find(params[:id])
     gon.places = @petri_net.places
-    gon.tokens = 
     gon.arcs = @petri_net.arcs
     gon.transitions = @petri_net.transitions
   end

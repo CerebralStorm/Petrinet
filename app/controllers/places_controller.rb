@@ -1,6 +1,7 @@
 class PlacesController < ApplicationController
   def create
     @place = Place.create!(params[:place])
+    gon.place = @place
     render nothing: true
   end
 

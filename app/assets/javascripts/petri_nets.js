@@ -6,7 +6,6 @@ $(document).ready(function() {
   });
 
   var layer = new Kinetic.Layer();
-  var arcLayer = new Kinetic.Layer();
   var placeLayer = new Kinetic.Layer();
   var transitionLayer = new Kinetic.Layer();
   var petri_net_id = $('#petri_net_id').html();
@@ -25,9 +24,9 @@ $(document).ready(function() {
   });
 
   // set all arcs
-  $(gon.arcs).each(function(k, v){
-    setArc(v.beginX, v.beginY, v.endX, v.endY, v.id);
-  });
+  // $(gon.arcs).each(function(k, v){
+  //   setArc(v.beginX, v.beginY, v.endX, v.endY, v.id);
+  // });
 
   background = new Kinetic.Rect({
       x: 0, 
@@ -38,55 +37,50 @@ $(document).ready(function() {
   });
 
   line = new Kinetic.Line({
-    points: [0, 0, 0, 0],
-    strokeWidth: 4,
-    stroke: "black"
+      points: [0, 0, 0, 0],
+      stroke: "black"
   });
 
   layer.add(background);
   layer.add(line);
   stage.add(layer);
-  stage.add(arcLayer);
+  // stage.add(arcLayer);
   stage.add(placeLayer);
-  stage.add(transitionLayer);  
+  stage.add(transitionLayer);
 
-moving = false;
+  moving = false;
 
   stage.on("mousedown", function(){
-    if (moving){
-        moving = false;
-        layer.draw();
-    } else {
-        var mousePos = stage.getMousePosition();
-        //start point and end point are the same
-        line.getPoints()[0].x = mousePos.x;
-        line.getPoints()[0].y = mousePos.y;
-        line.getPoints()[1].x = mousePos.x;
-        line.getPoints()[1].y = mousePos.y;
+      if (moving){
+          moving = false;layer.draw();
+      } else {
+          var mousePos = stage.getMousePosition();
+          //start point and end point are the same
+          line.getPoints()[0].x = mousePos.x;
+          line.getPoints()[0].y = mousePos.y;
+          line.getPoints()[1].x = mousePos.x;
+          line.getPoints()[1].y = mousePos.y;
+          moving = true;    
+          layer.drawScene();            
+      }
 
-        moving = true;    
-        layer.drawScene();            
-    }
-  }); 
-  stage.on("mousemove", function(){
-    if (moving) {
-        var mousePos = stage.getMousePosition();
-        var x = mousePos.x;
-        var y = mousePos.y;
-        line.getPoints()[1].x = mousePos.x;
-        line.getPoints()[1].y = mousePos.y;
-        moving = true;
-        layer.drawScene();
-    }
   });
+
+  stage.on("mousemove", function(){
+      if (moving) {
+          var mousePos = stage.getMousePosition();
+          var x = mousePos.x;
+          var y = mousePos.y;
+          line.getPoints()[1].x = mousePos.x;
+          line.getPoints()[1].y = mousePos.y;
+          moving = true;
+          layer.drawScene();
+      }
+  });
+
   stage.on("mouseup", function(){
-    moving = false; 
-    line.getPoints()[0].x = 0;
-    line.getPoints()[0].y = 0;
-    line.getPoints()[1].x = 0;
-    line.getPoints()[1].y = 0;
-    layer.drawScene();
-  }); 
+      moving = false; 
+  });
 
 // Add Places Event
   document.getElementById("place").addEventListener("click", function() {
@@ -115,25 +109,10 @@ moving = false;
     });  
   }, false);
 
-// Add Arc Event
-  document.getElementById("arc").addEventListener("click", function() {
-    $.ajax({
-      url: "/petri_nets/" + petri_net_id + "/arcs",
-      type: "POST",
-      data: {arc: { petri_net_id: petri_net_id,
-                      beginX: midX-20,
-                      beginY: midY-20,
-                      endX: midX+20,
-                      endY: midY+20,
-                       }}
-    });      
-  }, false); 
-
   // fuctions 
   function setPlace(posX, posY, id, num_of_tokens)
   {
     var group = new Kinetic.Group({
-        draggable: true,
         id: id
       });
     var place = new Kinetic.Circle({
@@ -150,8 +129,18 @@ moving = false;
             opacity: 0.5
           }
     });
+    var arcButton = new Kinetic.Circle({
+      x: posX+22,
+      y: posY-20,
+      radius: 4,
+      fill: '#5584A4',
+      stroke: '#000',
+      strokeWidth: 2,
+      draggable: true
+    });
 
     group.add(place);
+    group.add(arcButton);
 
     // draw tokens
     for (var i=0;i<num_of_tokens;i++)
@@ -180,7 +169,7 @@ moving = false;
       group.add(token);
     }
 
-    group.on("click", function() {
+    place.on("click", function() {
       if(num_of_tokens < 5) {
         $.ajax({
           url: "/petri_nets/" + petri_net_id + "/places/" + id,
@@ -201,16 +190,18 @@ moving = false;
       });
     });
 
-    group.on("mouseover", function() {
+    place.on("mouseover", function() {
+      group.setDraggable(true);
       document.body.style.cursor = "pointer";
     });
 
     group.on("mouseout", function() {
+      group.setDraggable(false);
       document.body.style.cursor = "default";
     });
 
     placeLayer.add(group);  
-    placeLayer.drawScene(); 
+    stage.add(placeLayer);
   }
 
   function setTransition(posX, posY, id)
@@ -264,7 +255,7 @@ moving = false;
     });
 
     transitionLayer.add(transition);
-    transitionLayer.drawScene();
+    stage.add(transitionLayer); 
   }
 
   // fuctions 
@@ -283,103 +274,8 @@ moving = false;
           }
     });
 
-    arcLayer.arc = {
-      start: buildBeginArc(arcLayer, beginX, beginY, id),
-      end: buildEndArc(arcLayer, endX, endY, id)
-    };
-
-    arcLayer.beforeDraw(function() {
-      updateLines(arcLayer);
-    });
-
     arcLayer.add(arc);
-    arcLayer.drawScene();
-  }
-
-  function buildBeginArc(layer, x, y, id) {
-    var anchor = new Kinetic.Circle({
-      x: x,
-      y: y,
-      radius: 8,
-      stroke: "#666",
-      fill: '#000',
-      strokeWidth: 2,
-      draggable: true
-    });
-
-    anchor.on("dragend", function() {
-      var mousePos = stage.getMousePosition();
-        $.ajax({
-          url: "/petri_nets/" + petri_net_id + "/arcs/" + id ,
-          type: "PUT",
-          data: { id: id, arc: { 
-                          beginX: mousePos.x,
-                          beginY: mousePos.y }},
-          success: checkPlaceConnection(x, y, id)
-        });
-    });
-
-    // add hover styling
-    anchor.on("mouseover", function() {
-      document.body.style.cursor = "pointer";
-      this.setStrokeWidth(4);
-      layer.draw();
-    });
-    anchor.on("mouseout", function() {
-      document.body.style.cursor = "default";
-      this.setStrokeWidth(2);
-      layer.draw();
-    });
-
-    layer.add(anchor);
-    return anchor;
-  }
-
-  function buildEndArc(layer, x, y, id) {
-    var anchor = new Kinetic.RegularPolygon({
-      x: x,
-      y: y,
-      sides: 3,
-      radius: 8,
-      fill: "black",
-      stroke: "black",
-      strokeWidth: 2,
-      name: name,
-      draggable: true
-    });
-
-    anchor.on("dragend", function() {
-      var mousePos = stage.getMousePosition();
-      $.ajax({
-        url: "/petri_nets/" + petri_net_id + "/arcs/" + id ,
-        type: "PUT",
-        data: { id: id, arc: { 
-                        endX: mousePos.x,
-                        endY: mousePos.y }},
-        success: checkTransitionConnection(x, y, id)
-      });
-    });
-    
-    // add hover styling
-    anchor.on("mouseover", function() {
-      document.body.style.cursor = "pointer";
-      this.setStrokeWidth(4);
-      layer.draw();
-    });
-    anchor.on("mouseout", function() {
-      document.body.style.cursor = "default";
-      this.setStrokeWidth(2);
-      layer.draw();
-    });
-
-    layer.add(anchor);
-    return anchor;
-  }
-
-  function updateLines(layer) {
-    var a = layer.arc;
-    var arcLine = layer.get('#arc')[0];
-    arcLine.setPoints([a.start.attrs.x, a.start.attrs.y, a.end.attrs.x, a.end.attrs.y]);
+    stage.add(arcLayer);
   }
 
   function checkPlaceConnection(x, y, id)
