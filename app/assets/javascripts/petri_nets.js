@@ -89,9 +89,20 @@ $(document).ready(function() {
       strokeWidth: 2,
       draggable: true
     });
+
+    var delButton = new Kinetic.Circle({
+      x: posX-22,
+      y: posY-20,
+      radius: 4,
+      fill: '#FF0000',
+      stroke: '#000',
+      strokeWidth: 2,
+      draggable: true
+    });
    
     group.add(place);
     group.add(arcButton);
+    group.add(delButton);
 
     // draw tokens
     if(num_of_tokens > 0){
@@ -99,6 +110,17 @@ $(document).ready(function() {
     }    
 
     var moving = false;
+
+    delButton.on("mousedown", function() {
+      if(confirm('Are you sure you want to delete this?')) {
+        $.ajax({
+          url: "/petri_nets/" + petri_net_id + "/places/" + id,
+          type: "DELETE",
+        }).done(function() { 
+          location.reload();
+        });  
+      }    
+    });
 
     arcButton.on("mousedown", function() {
       if (moving){

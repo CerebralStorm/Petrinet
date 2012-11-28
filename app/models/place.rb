@@ -6,7 +6,7 @@ class Place < ActiveRecord::Base
   validates :y, presence: true
 
   belongs_to :petri_net
-  has_many :arcs
+  has_many :arcs, dependent: :destroy
   has_many :transitions, through: :arcs
 
   def add_token

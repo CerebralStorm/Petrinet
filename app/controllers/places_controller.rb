@@ -20,5 +20,6 @@ class PlacesController < ApplicationController
   def destroy
     @place = Place.find(params[:id])
     @place.destroy
+    render nothing: true 
   end
 end
