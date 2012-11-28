@@ -19,5 +19,6 @@ class TransitionsController < ApplicationController
   def destroy
     @transition = Transition.find(params[:id])
     @transition.destroy
+    render nothing: true
   end
 end

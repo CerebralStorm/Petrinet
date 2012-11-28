@@ -260,8 +260,29 @@ $(document).ready(function() {
       draggable: true
     });
 
+    var delButton = new Kinetic.Circle({
+      x: posX,
+      y: posY,
+      radius: 4,
+      fill: '#FF0000',
+      stroke: '#000',
+      strokeWidth: 2,
+      draggable: true
+    });
     group.add(transition);
     group.add(arcButton);
+    group.add(delButton);
+
+    delButton.on("mousedown", function() {
+      if(confirm('Are you sure you want to delete this?')) {
+        $.ajax({
+          url: "/petri_nets/" + petri_net_id + "/transitions/" + id,
+          type: "DELETE",
+        }).done(function() { 
+          location.reload();
+        });  
+      }    
+    });
 
     var moving = false;
 
@@ -394,6 +415,27 @@ $(document).ready(function() {
       strokeWidth: 2,
     });    
     group.add(arrow);
+    var delButton = new Kinetic.Circle({
+      x: (transitionX+placeX)/2,
+      y: (transitionY+placeY)/2,
+      radius: 4,
+      fill: '#FF0000',
+      stroke: '#000',
+      strokeWidth: 2,
+      draggable: true
+    });
+    group.add(delButton);
+
+    delButton.on("mousedown", function() {
+      if(confirm('Are you sure you want to delete this?')) {
+        $.ajax({
+          url: "/petri_nets/" + petri_net_id + "/arcs/" + id,
+          type: "DELETE",
+        }).done(function() { 
+          location.reload();
+        });  
+      }    
+    });
 
     layer.add(group);
   }

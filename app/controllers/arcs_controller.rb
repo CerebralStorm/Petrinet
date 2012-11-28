@@ -7,5 +7,6 @@ class ArcsController < ApplicationController
   def destroy
     @arc = Arc.find(params[:id])
     @arc.destroy
+    render nothing: true
   end
 end
