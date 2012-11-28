@@ -40,11 +40,7 @@ $(document).ready(function() {
     }).done(function(data) { 
       console.log(data); 
       gon.places.push(data);
-      placeLayer.removeChildren();
-      $(gon.places).each(function(k, v){
-        setPlace(v.x, v.y, v.id, v.num_of_tokens, placeLayer);
-      });
-      placeLayer.draw();
+      setStage();
     });  
   }, false);
 
@@ -60,11 +56,7 @@ $(document).ready(function() {
     }).done(function(data) { 
       console.log(data); 
       gon.transitions.push(data);
-      transitionLayer.removeChildren();
-      $(gon.transitions).each(function(k, v){
-        setTransition(v.x, v.y, v.id, transitionLayer);
-      });
-      transitionLayer.draw();
+      setStage();
     });   
   }, false);
   
@@ -144,7 +136,7 @@ $(document).ready(function() {
       line.getPoints()[0].y = 0;
       line.getPoints()[1].x = 0;      
       line.getPoints()[1].y = 0;
-      drawLayer.drawScene();
+      setStage();
     });
 
     arcButton.on("dragend", function() {
@@ -164,9 +156,8 @@ $(document).ready(function() {
                                     transitionY: v.y  }}
           }).done(function(data) { 
             console.log(data); 
-            setArc(data.placeX, data.placeY, data.transitionX, 
-                   data.transitionY, drawLayer, data.output); 
-            drawLayer.drawScene(); 
+            gon.arcs.push(data);
+            setStage();
           });        
         }
       });
@@ -180,7 +171,8 @@ $(document).ready(function() {
           data: { id: id, place: { num_of_tokens: num_of_tokens+1 }} 
         }).done(function(data) { 
           console.log(data); 
-          // TODO
+          updatePlace(data.x, data.y, data.num_of_tokens, data.id);
+          setStage();
         });
       }
     });
@@ -188,14 +180,18 @@ $(document).ready(function() {
     group.on("dragend", function() {
       var x = place.getAbsolutePosition().x;
       var y = place.getAbsolutePosition().y;
-      updatePlace(x, y, id);
+      
       $.ajax({
         url: "/petri_nets/" + petri_net_id + "/places/" + id,
         type: "PUT",
         data: { id: id, place: { 
                         x: place.getAbsolutePosition().x,
                         y: place.getAbsolutePosition().y }}
-      });
+      }).done(function(data) { 
+          console.log(data); 
+          updatePlace(data.x, data.y, data.num_of_tokens, data.id);
+          setStage();
+        });      
     });
 
     place.on("mouseover", function() {
@@ -307,11 +303,7 @@ $(document).ready(function() {
           }).done(function(data) { 
             console.log(data); 
             gon.arcs.push(data);
-            drawLayer.removeChildren();
-            $(gon.arcs).each(function(k, v){
-              setArc(v.placeX, v.placeY, v.transitionX, v.transitionY, drawLayer, v.output);
-            });
-            drawLayer.draw();
+            setStage();
           });         
         }
       });
@@ -328,6 +320,7 @@ $(document).ready(function() {
                         x: transition.getAbsolutePosition().x,
                         y: transition.getAbsolutePosition().y }}
       });
+      setStage();
     }); 
 
     transition.on("click", function() {
@@ -335,7 +328,10 @@ $(document).ready(function() {
         url: "/petri_nets/" + petri_net_id,
         type: "PUT",
         data: { id: petri_net_id, transition_id: id }
-      })
+      }).done(function(data) { 
+          console.log(data); 
+          setStage();
+        }); 
     });       
 
     transition.on("mouseover", function() {
@@ -352,13 +348,17 @@ $(document).ready(function() {
   }
 
   // fuctions 
-  function setArc(placeX, placeY, transitionX, transitionY, layer, output)
+  function setArc(placeX, placeY, transitionX, transitionY, layer, output, id)
   { 
+    transitionX += 15;
+    transitionY += 15;
     var angle = calcAngle(placeX, transitionX, placeY, transitionY);
     if(output){
       angle += 180;
     }
-    var group = new Kinetic.Group();
+    var group = new Kinetic.Group({
+      id: id
+    });
     var arc = new Kinetic.Line({
       points: [placeX, placeY, transitionX, transitionY],
       stroke: "black"
@@ -404,7 +404,7 @@ $(document).ready(function() {
   }
 
   function setStage() {
-
+  clearStage();
   background = new Kinetic.Rect({
       x: 0, 
       y: 0, 
@@ -433,7 +433,7 @@ $(document).ready(function() {
 
   //set all arcs
   $(gon.arcs).each(function(k, v){
-    setArc(v.placeX, v.placeY, v.transitionX+15, v.transitionY+15, drawLayer, v.output);
+    setArc(v.placeX, v.placeY, v.transitionX, v.transitionY, drawLayer, v.output, v.id);
   });  
     
   stage.add(drawLayer);
@@ -448,11 +448,12 @@ $(document).ready(function() {
     drawLayer.removeChildren();
   }
 
-  function updatePlace(x, y, id) {
+  function updatePlace(x, y, num_of_tokens, id) {
     $(gon.places).each(function(k, v){
       if(v.id == id) {
         v.x = x;
         v.y = y;
+        v.num_of_tokens = num_of_tokens;
       }
     });
   }
@@ -465,5 +466,16 @@ $(document).ready(function() {
       }
     });
   }
+
+  // function updateArc(placeX, placeX, transitionX, transitionY, id) {
+  //   $(gon.arcs).each(function(k, v){
+  //     if(v.id == id) {
+  //       v.placeX = placeX;
+  //       v.placeY = placeY;
+  //       v.transitionX = transitionX;
+  //       v.transitionY = transitionY;
+  //     }
+  //   });
+  // }
 });
 
