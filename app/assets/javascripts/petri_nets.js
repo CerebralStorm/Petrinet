@@ -189,8 +189,7 @@ $(document).ready(function() {
                         y: place.getAbsolutePosition().y }}
       }).done(function(data) { 
           console.log(data); 
-          updatePlace(data.x, data.y, data.num_of_tokens, data.id);
-          setStage();
+          location.reload();
         });      
     });
 
@@ -329,8 +328,7 @@ $(document).ready(function() {
         type: "PUT",
         data: { id: petri_net_id, transition_id: id }
       }).done(function(data) { 
-          console.log(data); 
-          setStage();
+          location.reload();
         }); 
     });       
 
