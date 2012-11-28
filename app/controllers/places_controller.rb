@@ -1,4 +1,5 @@
 class PlacesController < ApplicationController
+ 
   def create
     @petri_net = PetriNet.find(params[:place][:petri_net_id])
     @place = Place.create!(params[:place])  
@@ -13,7 +14,7 @@ class PlacesController < ApplicationController
       arc.placeY = params[:place][:y] unless params[:place][:y].nil?
       arc.save
     end
-    render nothing: true
+    render json: @place
   end
 
   def destroy

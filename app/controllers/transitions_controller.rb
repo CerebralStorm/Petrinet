@@ -1,4 +1,5 @@
 class TransitionsController < ApplicationController
+ 
   def create
     @transition = Transition.create!(params[:transition])
     render json: @transition
@@ -12,7 +13,7 @@ class TransitionsController < ApplicationController
       arc.transitionY = params[:transition][:y]
       arc.save
     end
-    render nothing: true
+    render json: @transition
   end
 
   def destroy

@@ -11,7 +11,7 @@ $(document).ready(function() {
   var transitionLayer = new Kinetic.Layer();
   var petri_net_id = $('#petri_net_id').html();
   var midX = stage.getWidth() / 2 - 50;
-  var midY = stage.getHeight() / 2 - 25;
+  var midY = stage.getHeight() / 2 - 25; 
 
   var background = new Kinetic.Rect({
       x: 0, 
@@ -26,9 +26,7 @@ $(document).ready(function() {
       stroke: "black"
   });
 
-  drawLayer.add(background);
-  drawLayer.add(line);
-  
+  setStage(); 
 
   // Add Places Event Listener
   document.getElementById("place").addEventListener("click", function() {
@@ -39,13 +37,14 @@ $(document).ready(function() {
                       x: midX,
                       y: midY,
                        }},
-      success: function(data) {
-        //alert(data);
-      }
     }).done(function(data) { 
       console.log(data); 
-      setPlace(data.x, data.y, data.id, data.num_of_tokens, placeLayer); 
-      placeLayer.drawScene(); 
+      gon.places.push(data);
+      placeLayer.removeChildren();
+      $(gon.places).each(function(k, v){
+        setPlace(v.x, v.y, v.id, v.num_of_tokens, placeLayer);
+      });
+      placeLayer.draw();
     });  
   }, false);
 
@@ -60,30 +59,15 @@ $(document).ready(function() {
                        }},
     }).done(function(data) { 
       console.log(data); 
-      setTransition(data.x, data.y, data.id, transitionLayer);
-      transitionLayer.drawScene();   
+      gon.transitions.push(data);
+      transitionLayer.removeChildren();
+      $(gon.transitions).each(function(k, v){
+        setTransition(v.x, v.y, v.id, transitionLayer);
+      });
+      transitionLayer.draw();
     });   
   }, false);
-
-  // set all places
-  $(gon.places).each(function(k, v){
-    setPlace(v.x, v.y, v.id, v.num_of_tokens, placeLayer);
-  });
-
-  // set all transitions
-  $(gon.transitions).each(function(k, v){
-    setTransition(v.x, v.y, v.id, transitionLayer);
-  });
-
-  //set all arcs
-  $(gon.arcs).each(function(k, v){
-    setArc(v.placeX, v.placeY, v.transitionX+15, v.transitionY+15, drawLayer, v.output);
-  });  
-    
-  stage.add(drawLayer);
-  stage.add(placeLayer);
-  stage.add(transitionLayer);
-
+  
   // fuctions 
   function setPlace(posX, posY, id, num_of_tokens, layer)
   {
@@ -196,14 +180,15 @@ $(document).ready(function() {
           data: { id: id, place: { num_of_tokens: num_of_tokens+1 }} 
         }).done(function(data) { 
           console.log(data); 
-          drawToken(posX, posY, group); 
-          placeLayer.drawScene(); 
+          // TODO
         });
       }
     });
 
     group.on("dragend", function() {
-      var mousePos = stage.getMousePosition();
+      var x = place.getAbsolutePosition().x;
+      var y = place.getAbsolutePosition().y;
+      updatePlace(x, y, id);
       $.ajax({
         url: "/petri_nets/" + petri_net_id + "/places/" + id,
         type: "PUT",
@@ -321,15 +306,21 @@ $(document).ready(function() {
                                     output: true  }}
           }).done(function(data) { 
             console.log(data); 
-            setArc(data.placeX, data.placeY, data.transitionX+15, 
-                   data.transitionY+15, drawLayer, data.output);  
+            gon.arcs.push(data);
+            drawLayer.removeChildren();
+            $(gon.arcs).each(function(k, v){
+              setArc(v.placeX, v.placeY, v.transitionX, v.transitionY, drawLayer, v.output);
+            });
+            drawLayer.draw();
           });         
         }
       });
     });
 
     group.on("dragend", function() {
-      var mousePos = stage.getMousePosition();
+      var x = transition.getAbsolutePosition().x;
+      var y = transition.getAbsolutePosition().y;
+      updateTransition(x, y, id);
       $.ajax({
         url: "/petri_nets/" + petri_net_id + "/transitions/" + id ,
         type: "PUT",
@@ -410,6 +401,69 @@ $(document).ready(function() {
     });
 
     group.add(token);
+  }
+
+  function setStage() {
+
+  background = new Kinetic.Rect({
+      x: 0, 
+      y: 0, 
+      width: stage.getWidth(),
+      height: stage.getHeight(),
+      fill: "#A5A5A5"
+  });
+
+  line = new Kinetic.Line({
+      points: [0, 0, 0, 0],
+      stroke: "black"
+  });
+  
+  drawLayer.add(background);
+  drawLayer.add(line); 
+
+  // set all places
+  $(gon.places).each(function(k, v){
+    setPlace(v.x, v.y, v.id, v.num_of_tokens, placeLayer);
+  });
+
+  // set all transitions
+  $(gon.transitions).each(function(k, v){
+    setTransition(v.x, v.y, v.id, transitionLayer);
+  });
+
+  //set all arcs
+  $(gon.arcs).each(function(k, v){
+    setArc(v.placeX, v.placeY, v.transitionX+15, v.transitionY+15, drawLayer, v.output);
+  });  
+    
+  stage.add(drawLayer);
+  stage.add(placeLayer);
+  stage.add(transitionLayer);
+  }
+
+  function clearStage() {
+    stage.removeChildren();
+    placeLayer.removeChildren();
+    transitionLayer.removeChildren();
+    drawLayer.removeChildren();
+  }
+
+  function updatePlace(x, y, id) {
+    $(gon.places).each(function(k, v){
+      if(v.id == id) {
+        v.x = x;
+        v.y = y;
+      }
+    });
+  }
+
+  function updateTransition(x, y, id) {
+    $(gon.transitions).each(function(k, v){
+      if(v.id == id) {
+        v.x = x;
+        v.y = y;
+      }
+    });
   }
 });
 
