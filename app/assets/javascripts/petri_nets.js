@@ -60,7 +60,7 @@ $(document).ready(function() {
     });   
   }, false);
   
-  // fuctions 
+  // functions 
   function setPlace(posX, posY, id, num_of_tokens, layer)
   {
     var group = new Kinetic.Group({
@@ -106,7 +106,7 @@ $(document).ready(function() {
 
     // draw tokens
     if(num_of_tokens > 0){
-      drawToken(posX, posY, group);
+      drawToken(posX, posY, num_of_tokens, group);
     }    
 
     var moving = false;
@@ -186,7 +186,6 @@ $(document).ready(function() {
     });
 
     place.on("click", function() {
-      if(num_of_tokens < 1) {
         $.ajax({
           url: "/petri_nets/" + petri_net_id + "/places/" + id,
           type: "PUT",
@@ -196,7 +195,6 @@ $(document).ready(function() {
           updatePlace(data.x, data.y, data.num_of_tokens, data.id);
           setStage();
         });
-      }
     });
 
     group.on("dragend", function() {
@@ -362,7 +360,7 @@ $(document).ready(function() {
                         x: transition.getAbsolutePosition().x,
                         y: transition.getAbsolutePosition().y }}
       });
-      setStage();
+      location.reload();
     }); 
 
     transition.on("click", function() {
@@ -451,18 +449,79 @@ $(document).ready(function() {
     return calcAngle;
   }
 
-  function drawToken(x, y, group)
-  {
-    var token = new Kinetic.Circle({
-      x: x,
-      y: y,
-      radius: 8,
-      fill: '#000',
-      stroke: 'black',
-      strokeWidth: 2,
-    });
-
-    group.add(token);
+  function drawToken(x, y, num, group) {
+    if(num == 1){
+      var token = new Kinetic.Circle({
+        x: x,
+        y: y,
+        radius: 4,
+        fill: '#000',
+        stroke: 'black',
+        strokeWidth: 2,
+      });
+      group.add(token);
+    } else if (num > 1 && num < 5) {
+      for(i=1; i < num+1; i++) {
+        if(i%2 == 0) {
+          var token = new Kinetic.Circle({
+            x: x + (i*6)-6,
+            y: y,
+            radius: 4,
+            fill: '#000',
+            stroke: 'black',
+            strokeWidth: 2,
+          });
+        } else {
+          var token = new Kinetic.Circle({
+            x: x - (i*6),
+            y: y,
+            radius: 4,
+            fill: '#000',
+            stroke: 'black',
+            strokeWidth: 2,
+          });
+        }      
+        group.add(token);
+      } 
+    } else if (num > 4 && num < 10) {
+      var simpleText = new Kinetic.Text({
+        x: x-5,
+        y: y-3,
+        text: num,
+        fontSize: 10,
+        fontFamily: 'Calibri',
+        textFill: 'white'
+      });
+      var token = new Kinetic.Circle({
+        x: x,
+        y: y,
+        radius: 12,
+        fill: '#000',
+        stroke: 'black',
+        strokeWidth: 2,
+      });
+      group.add(token);
+      group.add(simpleText);
+    } else {
+      var simpleText = new Kinetic.Text({
+        x: x-8,
+        y: y-3,
+        text: num,
+        fontSize: 10,
+        fontFamily: 'Calibri',
+        textFill: 'white'
+      });
+      var token = new Kinetic.Circle({
+        x: x,
+        y: y,
+        radius: 12,
+        fill: '#000',
+        stroke: 'black',
+        strokeWidth: 2,
+      });
+      group.add(token);
+      group.add(simpleText);
+    }
   }
 
   function setStage() {

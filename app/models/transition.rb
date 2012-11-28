@@ -22,7 +22,6 @@ class Transition < ActiveRecord::Base
         result = false
       end
     end
-
     return result
   end
 end
