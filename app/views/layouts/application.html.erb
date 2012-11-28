@@ -9,7 +9,7 @@
 </head>
 <body>
   <div class="container">
-    <!-- Navbar ================================================== -->
+    <!-- Navbar ======================================== -->
 <section id="navbar">
   <div class="navbar">
     <div class="navbar-inner">
@@ -23,14 +23,13 @@
         <div class="nav-collapse">
           <ul class="nav">
             <li><%= link_to "Home", root_path %></a></li>
-            <li><a href="#">Instructions</a></li>
-            <li><a href="#">Saved Simulations</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><a href="#iModal" data-toggle="modal">Instructions</a></li>
+            <li><a href="#contactModal" data-toggle="modal">Contact</a></li>
           </ul>
           <ul class="nav pull-right">
             <li class="divider-vertical"></li>
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Settings <b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Settings (coming soon)<b class="caret"></b></a>
               <ul class="dropdown-menu">
                 <li><a href="#">Normal</a></li>
                 <li><a href="#">Timed</a></li>
@@ -49,5 +48,39 @@
     <%= yield %>
   </section>
   </div>
+     
+    <!-- Instruction Modal -->
+    <div id="contactModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Contact</h3>
+    </div>
+    <div class="modal-body">
+    <p>One fine body…</p>
+    </div>
+    <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    </div>
+    </div>
+
+    <!-- Instruction Modal -->
+    <div id="iModal" class="modal hide fade">
+    <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Instructions</h3>
+    </div>
+    <div class="modal-body">
+    <h4>Create Petri Net</h4>
+    <p>To <b>create a new petri net</b> simply click on the "Create new Petri Net" located on the home page.</p> 
+    <h4>Controls</h4>
+    <p>Once a petri net is created, you can add <b>places</b> and <b>transitions</b> to it by clicking their respective buttons. Once a place is created you can move it around simply by clicking and dragging it.</p>
+    <p>To create an <b>arc</b> connection, drag the circle in the top right of a place or transistion over the place or transition you wish to connect. A transition can only connect to a place and vise versa. Note: the order in which you drag the arc determins the direction of the arc. </p>
+    <p>To <b>delete</b> any item of the petri graph click the red circle. Don't worry you will be asked to confirm incase you accidentally misclick</p>
+    <p>Finally to add <b>Tokens</b> to a place, single click the place you desire to add a token to. To fire a transition, single click the transition you want to fire. A transition will only fire if all of it's inputs have tokens</p>
+    </div>    
+    <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    </div>
+    </div>
 </body>
 </html>
